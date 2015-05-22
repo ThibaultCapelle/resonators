@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category/>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>ruby</interpreter>
+ <dsl-interpreter-name/>
+ <text>module N_sided_spiral
+ 
+  include RBA
+  
+  app = RBA::Application.instance
+  mw = app.main_window
+  
+  lv = mw.current_view
+  if lv == nil
+    raise "No view selected"
+  end
+  
+  cv = lv.active_cellview
+  cv_index = cv.cell_index
+  layout = cv.layout
+  cell=cv.cell
+  
+  layer=layout.layer(9,0)
+  
+  if layer==nil
+    color=0xff
+  else
+    lp_found = nil
+    iter = lv.begin_layers
+    while !iter.at_end?
+      lp = iter.current
+      if lp.cellview == cv_index &amp;&amp; lp.layer_index == layer
+        lp_found = lp 
+      end
+      iter.next
+    end
+    color=lp_found.eff_frame_color
+  end
+  
+  linfo_positive=RBA::LayerInfo::new(30, 0)
+  linfo_negative=RBA::LayerInfo::new(31, 0)
+  new_layer_id_positive = layout.insert_layer( linfo_positive )
+  new_layer_id_negative = layout.insert_layer( linfo_negative )
+  
+  
+  ln_positive = RBA::LayerPropertiesNode::new
+  ln_negative = RBA::LayerPropertiesNode::new
+  ln_positive.dither_pattern = 11
+  ln_negative.dither_pattern = 13
+  ln_negative.name = "negative spiral"
+  ln_positive.name = "positive spiral"
+  c = color
+  
+  ln_positive.fill_color = c
+  ln_positive.frame_color = c
+  ln_positive.width = 1
+  ln_positive.source_layer_index = new_layer_id_positive
+  lv.insert_layer( lv.end_layers, ln_positive )
+  
+  
+  ln_negative.fill_color = c
+  ln_negative.frame_color = c
+  ln_negative.width = 1
+  ln_negative.source_layer_index = new_layer_id_negative
+  lv.insert_layer( lv.end_layers, ln_negative )
+  
+  x0=150000
+  y0=50000
+  
+  inner=5000  
+  s=1000
+  w=1000
+  turns=20
+  sides=15
+  
+  #x0 = RBA::InputDialog::ask_int("x position", "Enter x position of the center of the spiral in nanometers", 150000)
+  #y0 = RBA::InputDialog::ask_int("y position", "Enter y position of the center of the spiral in nanometers", 50000)
+  #inner = RBA::InputDialog::ask_int("inner mean diameter", "Enter inner mean diameter of the spiral in nanometers", 5000)
+  #s = RBA::InputDialog::ask_int("spacing", "Enter spacing between turns of the spiral in nanometers", 1000)
+  #w = RBA::InputDialog::ask_int("width", "Enter width of the turns of the spiral in nanometers", 1000)
+  #turns = RBA::InputDialog::ask_int("turns", "Enter number of turns of the spiral", 20)
+  #sides = RBA::InputDialog::ask_int("sides", "Enter number of sides of the spiral", 8)
+  
+  xa=x0+inner-w/2
+  ya=y0
+  
+  xb=x0+inner+w/2
+  yb=y0
+  
+  alpha=Math.atan2(((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f-Math.cos(2*Math::PI/sides)),Math.sin(2*Math::PI/sides))
+  length=(inner+w/2)/Math.cos(alpha)
+  xc=x0+length*Math.cos(alpha)
+  yc=y0+length*Math.sin(alpha)
+  
+  alpha=Math.atan2(((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f-Math.cos(2*Math::PI/sides)),Math.sin(2*Math::PI/sides))
+  length=(inner-w/2)/Math.cos(alpha)
+  xd=x0+length*Math.cos(alpha)
+  yd=y0+length*Math.sin(alpha)
+  
+  xe=x0+inner+s+w/2
+  ye=y0
+  
+  alpha=Math.atan2(((inner+s+w/2+(s+w)/sides).to_f/(inner+s+w/2).to_f-Math.cos(2*Math::PI/sides)),Math.sin(2*Math::PI/sides))
+  length=(inner+s+w/2)/Math.cos(alpha)
+  xf=x0+length*Math.cos(alpha)
+  yf=y0+length*Math.sin(alpha)
+  
+  
+  ref_angle=2*(Math::PI)/sides
+  angle=ref_angle
+  inner=inner+(s+w)/sides
+  
+  for i in (1..turns)
+    for n in (1..sides)
+      cell.shapes(new_layer_id_positive).insert(SimplePolygon::new([Point::new(xa,ya),Point::new(xb,yb),Point::new(xc,yc),Point::new(xd,yd)]))
+      cell.shapes(new_layer_id_negative).insert(SimplePolygon::new([Point::new(xb,yb),Point::new(xe,ye),Point::new(xf,yf),Point::new(xc,yc)]))
+      
+      xa=xd
+      ya=yd
+      xb=xc
+      yb=yc
+      xe=xf
+      ye=yf
+    
+    
+      
+      alpha=Math.atan((((inner+w/2+(s+w)/sides).to_f/(inner+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+      length=(inner+w/2)/Math.cos(alpha)
+      xc=x0+length*Math.cos(alpha+angle)
+      yc=y0+length*Math.sin(alpha+angle)
+    
+      alpha=Math.atan((((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+      length=(inner-w/2)/Math.cos(alpha)
+      xd=x0+length*Math.cos(alpha+angle)
+      yd=y0+length*Math.sin(alpha+angle)
+      
+      alpha=Math.atan((((inner+w/2+s+(s+w)/sides).to_f/(inner+s+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+      length=(inner+s+w/2)/Math.cos(alpha)
+      xf=x0+length*Math.cos(alpha+angle)
+      yf=y0+length*Math.sin(alpha+angle)
+    
+      
+      angle=angle+ref_angle
+      inner=inner+(s+w)/sides
+    end
+  end
+  
+end
+</text>
+</klayout-macro>

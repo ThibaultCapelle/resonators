@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category/>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>ruby</interpreter>
+ <dsl-interpreter-name/>
+ <text>module MyMacro
+ 
+  include RBA
+
+  # Enter your Ruby code here ..
+
+
+  app = Application.instance
+  mw = app.main_window
+
+  lv = mw.current_view
+  if lv == nil
+    raise "Shape Statistics: No view selected"
+  end
+  
+  #layout = lv.cellview( 0 ).layout 
+  
+  #layer = layout.layer(RBA::LayerInfo::new(30, 0))
+  
+  
+  
+  cv = lv.active_cellview
+  layout = cv.layout
+  linfo=RBA::LayerInfo::new(30, 0)
+  #layer = layout.layer(linfo)
+  new_layer_id = layout.insert_layer( linfo )
+  cell=cv.cell
+  
+  ln = RBA::LayerPropertiesNode::new
+  ln.dither_pattern = 0
+  c = 0x00
+  ln.fill_color = c
+  ln.frame_color = c
+  ln.width = 1
+  ln.source_layer_index = new_layer_id
+  lv.insert_layer( lv.end_layers, ln )
+
+ 
+
+  
+  
+  
+  center_x=0
+  center_y=0
+  n_sides=8
+  n_turns=20
+  w=1
+  spacing=1
+  inner=6
+  
+  
+  
+  
+  #u=SimplePolygon::new([RBA::Point::new(2000000,7000000),RBA::Point::new(3000000,3000000),RBA::Point::new(2000000,3000000)])
+  #shapes.insert(u)
+  #shapes.each do |s|
+    #puts s.to_s
+  #end
+  
+  paths = 0
+  polygons = 0
+  boxes = 0
+  texts = 0
+  
+  xmin=2025000
+  xmax=2106000
+  ymin=2459000
+  ymax=2541000
+  
+  #xmin=2015000
+  #xmax=2104000
+  #ymin=7455500
+  #ymax=7544500
+  
+  #layer = RBA::Shapes::new
+  #layer.push(SimplePolygon::new([RBA::Point::new(2000000,7000000),RBA::Point::new(3000000,3000000),RBA::Point::new(2000000,3000000)]))
+  
+  lv.each_object_selected do |sel|
+
+    shapes=cell.shapes(sel.layer)
+    
+    shape = sel.shape
+    puts shape.to_s
+    
+    if shape.is_path?
+      paths += 1
+    elsif shape.is_box?
+      boxes += 1
+    elsif shape.is_polygon?
+      polygons += 1
+      points=Array::new
+      shape.each_point_hull do |p|
+        if (p.x&gt;xmin)&amp;&amp;(p.x&lt;xmax)&amp;&amp;(p.y&gt;ymin)&amp;&amp;(p.y&lt;ymax)
+          points.push(p)
+        end
+      end
+      points.reverse!.pop
+      points.pop
+      points.reverse!
+      region=RBA::Region::new
+      while points.length &gt; 3 do
+        u=SimplePolygon::new([points.pop, points.reverse!.pop, points.last,points.reverse!.last])
+        region=region&amp;(RBA::Region::new(u))
+        cell.shapes(new_layer_id).insert(u)
+        
+      end
+      
+      puts points.to_s
+      #points.sort! {|a,b| a.x &lt;=&gt; b.x}
+      #puts points.to_s
+      #while points.length &gt; 2 do
+       # u=SimplePolygon::new([points.pop, points.pop, points.pop])
+       # shapes.insert(u)
+        
+      #end
+      
+    elsif shape.is_text?
+      texts += 1
+    end
+    
+    
+  end
+
+  s = "Paths: #{paths}\n"
+  s += "Polygons: #{polygons}\n"
+  s += "Boxes: #{boxes}\n"
+  s += "Texts: #{texts}\n"
+
+  MessageBox::info("Shape Statistics", s, MessageBox::Ok)
+
+end
+</text>
+</klayout-macro>
