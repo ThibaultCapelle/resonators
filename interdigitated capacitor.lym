@@ -17,128 +17,134 @@
  <text>module Interdigitated_Capacitor
  
   include RBA
-  
-  app = RBA::Application.instance
-  mw = app.main_window
-  
-  lv = mw.current_view
-  if lv == nil
-    raise "No view selected"
-  end
-  
-  cv = lv.active_cellview
-  cv_index = cv.cell_index
-  layout = cv.layout
-  cell=cv.cell
-  
-  layer=layout.layer(9,0)
-  
-  if layer==nil
-    color=0xff
-  else
-    lp_found = nil
-    iter = lv.begin_layers
-    while !iter.at_end?
-      lp = iter.current
-      if lp.cellview == cv_index &amp;&amp; lp.layer_index == layer
-        lp_found = lp 
-      end
-      iter.next
+
+  def Interdigitated_Capacitor.create(x0,y0,w,s,end_gap,overlap,pairs,terminal,side_length,negative_gap)
+    app = RBA::Application.instance
+    mw = app.main_window
+    
+    lv = mw.current_view
+    if lv == nil
+      raise "No view selected"
     end
-    color=lp_found.eff_frame_color
-  end
-  
-  linfo_positive=RBA::LayerInfo::new(30, 0)
-  linfo_negative=RBA::LayerInfo::new(31, 0)
-  new_layer_id_positive = layout.insert_layer( linfo_positive )
-  new_layer_id_negative = layout.insert_layer( linfo_negative )
-  
-  
-  ln_positive = RBA::LayerPropertiesNode::new
-  ln_negative = RBA::LayerPropertiesNode::new
-  ln_positive.dither_pattern = 11
-  ln_negative.dither_pattern = 13
-  ln_negative.name = "negative interdigitated capacitor"
-  ln_positive.name = "positive interdigitated capacitor"
-  c = color
-  
-  ln_positive.fill_color = c
-  ln_positive.frame_color = c
-  ln_positive.width = 1
-  ln_positive.source_layer_index = new_layer_id_positive
-  lv.insert_layer( lv.end_layers, ln_positive )
-  
-  
-  ln_negative.fill_color = c
-  ln_negative.frame_color = c
-  ln_negative.width = 1
-  ln_negative.source_layer_index = new_layer_id_negative
-  lv.insert_layer( lv.end_layers, ln_negative )
-  
-  x0=150000
-  y0=50000
-  w=250
-  s=250
-  end_gap=1000
-  overlap=7000
-  pairs=7
-  terminal=2000
-  side_length=1000
-  negative_gap=1000
-  
-  #x0 = RBA::InputDialog::ask_int("x position", "Enter x position of the bottom left-hand corner of the interdigitated capacitor in nanometers", 150000)
-  #y0 = RBA::InputDialog::ask_int("y position", "Enter y position of the bottom left-hand corner of the interdigitated capacitor in nanometers", 50000)
-  #overlap = RBA::InputDialog::ask_int("overlap", "Enter overlap of the interdigitated capacitor in nanometers", 7000)
-  #s = RBA::InputDialog::ask_int("spacing", "Enter spacing between the fingers of the interdigitated capacitor in nanometers", 1000)
-  #w = RBA::InputDialog::ask_int("width", "Enter width of the fingers of the interdigitated capacitor in nanometers", 1000)
-  #pairs = RBA::InputDialog::ask_int("pairs", "Enter number of finger pairs of the interdigitated capacitor", 7)
-  #end_gap = RBA::InputDialog::ask_int("end gap", "Enter end gap of the interdigitated capacitor in nanometers", 1000)
-  #terminal = RBA::InputDialog::ask_int("terminal width", "Enter terminal width of the interdigitated capacitor in nanometers", 2000)
-  
-  points=Array::new
-  points.push(RBA::Point::new(x0,y0))
-  points.push(RBA::Point::new(x0,y0+2*pairs*(s+w)-s))
-  points.push(RBA::Point::new(x0+terminal+end_gap+overlap,y0+2*pairs*(s+w)-s))
-  
-  x_temp=x0+terminal+end_gap+overlap
-  y_temp=y0+2*pairs*(s+w)-s
-  for i in (1..(pairs-1))
+    
+    cv = lv.active_cellview
+    cv_index = cv.cell_index
+    layout = cv.layout
+    cell=cv.cell
+    
+    layer=layout.layer(9,0)
+    
+    if layer==nil
+      color=0xfa
+    else
+      lp_found = nil
+      iter = lv.begin_layers
+      while !iter.at_end?
+        lp = iter.current
+        if lp.cellview == cv_index &amp;&amp; lp.layer_index == layer
+          lp_found = lp 
+        end
+        iter.next
+      end
+      if (lp_found != nil)&amp;&amp;(lp_found.has_frame_color?)
+        color=lp_found.eff_frame_color
+      else
+        color=0xfa
+      end
+      
+    end
+    
+    linfo_positive=RBA::LayerInfo::new(30, 0)
+    linfo_negative=RBA::LayerInfo::new(31, 0)
+    new_layer_id_positive = layout.insert_layer( linfo_positive )
+    new_layer_id_negative = layout.insert_layer( linfo_negative )
+    
+    
+    ln_positive = RBA::LayerPropertiesNode::new
+    ln_negative = RBA::LayerPropertiesNode::new
+    ln_positive.dither_pattern = 11
+    ln_negative.dither_pattern = 13
+    ln_negative.name = "negative interdigitated capacitor"
+    ln_positive.name = "positive interdigitated capacitor"
+    c = color
+    
+    ln_positive.fill_color = c
+    ln_positive.frame_color = c
+    ln_positive.width = 1
+    ln_positive.source_layer_index = new_layer_id_positive
+    lv.insert_layer( lv.end_layers, ln_positive )
+    
+    
+    ln_negative.fill_color = c
+    ln_negative.frame_color = c
+    ln_negative.width = 1
+    ln_negative.source_layer_index = new_layer_id_negative
+    lv.insert_layer( lv.end_layers, ln_negative )
+    
+    #x0=150000
+    #y0=50000
+    #w=250
+    #s=250
+    #end_gap=1000
+    #overlap=7000
+    #pairs=7
+    #terminal=2000
+    #side_length=1000
+    #negative_gap=1000
+    
+    #x0 = RBA::InputDialog::ask_int("x position", "Enter x position of the bottom left-hand corner of the interdigitated capacitor in nanometers", 150000)
+    #y0 = RBA::InputDialog::ask_int("y position", "Enter y position of the bottom left-hand corner of the interdigitated capacitor in nanometers", 50000)
+    #overlap = RBA::InputDialog::ask_int("overlap", "Enter overlap of the interdigitated capacitor in nanometers", 7000)
+    #s = RBA::InputDialog::ask_int("spacing", "Enter spacing between the fingers of the interdigitated capacitor in nanometers", 1000)
+    #w = RBA::InputDialog::ask_int("width", "Enter width of the fingers of the interdigitated capacitor in nanometers", 1000)
+    #pairs = RBA::InputDialog::ask_int("pairs", "Enter number of finger pairs of the interdigitated capacitor", 7)
+    #end_gap = RBA::InputDialog::ask_int("end gap", "Enter end gap of the interdigitated capacitor in nanometers", 1000)
+    #terminal = RBA::InputDialog::ask_int("terminal width", "Enter terminal width of the interdigitated capacitor in nanometers", 2000)
+    
+    points=Array::new
+    points.push(RBA::Point::new(x0,y0))
+    points.push(RBA::Point::new(x0,y0+2*pairs*(s+w)-s))
+    points.push(RBA::Point::new(x0+terminal+end_gap+overlap,y0+2*pairs*(s+w)-s))
+    
+    x_temp=x0+terminal+end_gap+overlap
+    y_temp=y0+2*pairs*(s+w)-s
+    for i in (1..(pairs-1))
+      y_temp=y_temp-w
+      points.push(RBA::Point::new(x_temp,y_temp))
+      x_temp=x_temp-overlap-end_gap
+      points.push(RBA::Point::new(x_temp,y_temp))
+      y_temp=y_temp-2*s-w
+      points.push(RBA::Point::new(x_temp,y_temp))
+      x_temp=x_temp+overlap+end_gap
+      points.push(RBA::Point::new(x_temp,y_temp))
+    end
+    
     y_temp=y_temp-w
     points.push(RBA::Point::new(x_temp,y_temp))
     x_temp=x_temp-overlap-end_gap
     points.push(RBA::Point::new(x_temp,y_temp))
-    y_temp=y_temp-2*s-w
+    y_temp=y_temp-s-w
     points.push(RBA::Point::new(x_temp,y_temp))
-    x_temp=x_temp+overlap+end_gap
-    points.push(RBA::Point::new(x_temp,y_temp))
+    
+    polygon=SimplePolygon::new(points)
+    polygonbis=polygon.transformed(RBA::Trans::new(RBA::Trans::R180))
+    x_origin=polygonbis.bbox.p1.x
+    y_origin=polygonbis.bbox.p1.y
+    x_target=x0+terminal+end_gap
+    y_target=y0
+    polygonbis=polygonbis.transformed(RBA::Trans::new(x_target-x_origin,y_target-y_origin))
+    connect_box=Box::new(RBA::Point::new(x0-side_length,y0+(pairs-0.5)*(s+w)),RBA::Point::new(x0,y0+(pairs-0.5)*(s+w)+w))
+    connect_box_bis=connect_box.transformed(RBA::Trans::new(overlap+side_length+2*(end_gap+terminal),0))
+    region=Region::new(Box::new(Point::new(x0-side_length,y0-negative_gap),Point::new(x0+overlap+side_length+2*(end_gap+terminal),y0+negative_gap+2*pairs*(s+w)-s)))
+    region_bis=Region::new(polygon)+Region::new(polygonbis)+Region::new(connect_box)+Region::new(connect_box_bis)
+    region=region ^ region_bis
+    
+    cell.shapes(new_layer_id_positive).insert(polygon)
+    cell.shapes(new_layer_id_positive).insert(connect_box)
+    cell.shapes(new_layer_id_positive).insert(connect_box_bis)
+    cell.shapes(new_layer_id_positive).insert(polygonbis)
+    cell.shapes(new_layer_id_negative).insert(region)
   end
-  
-  y_temp=y_temp-w
-  points.push(RBA::Point::new(x_temp,y_temp))
-  x_temp=x_temp-overlap-end_gap
-  points.push(RBA::Point::new(x_temp,y_temp))
-  y_temp=y_temp-s-w
-  points.push(RBA::Point::new(x_temp,y_temp))
-  
-  polygon=SimplePolygon::new(points)
-  polygonbis=polygon.transformed(RBA::Trans::new(RBA::Trans::R180))
-  x_origin=polygonbis.bbox.p1.x
-  y_origin=polygonbis.bbox.p1.y
-  x_target=x0+terminal+end_gap
-  y_target=y0
-  polygonbis=polygonbis.transformed(RBA::Trans::new(x_target-x_origin,y_target-y_origin))
-  connect_box=Box::new(RBA::Point::new(x0-side_length,y0+(pairs-0.5)*(s+w)),RBA::Point::new(x0,y0+(pairs-0.5)*(s+w)+w))
-  connect_box_bis=connect_box.transformed(RBA::Trans::new(overlap+side_length+2*(end_gap+terminal),0))
-  region=Region::new(Box::new(Point::new(x0-side_length,y0-negative_gap),Point::new(x0+overlap+side_length+2*(end_gap+terminal),y0+negative_gap+2*pairs*(s+w)-s)))
-  region_bis=Region::new(polygon)+Region::new(polygonbis)+Region::new(connect_box)+Region::new(connect_box_bis)
-  region=region ^ region_bis
-  
-  cell.shapes(new_layer_id_positive).insert(polygon)
-  cell.shapes(new_layer_id_positive).insert(connect_box)
-  cell.shapes(new_layer_id_positive).insert(connect_box_bis)
-  cell.shapes(new_layer_id_positive).insert(polygonbis)
-  cell.shapes(new_layer_id_negative).insert(region)
-  
 end
 </text>
 </klayout-macro>

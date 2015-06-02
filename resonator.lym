@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category/>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>ruby</interpreter>
+ <dsl-interpreter-name/>
+ <text>module Resonator
+ 
+  include RBA
+  include Interdigitated_Capacitor
+  include N_sided_spiral
+  
+  N_sided_spiral.create(0,0,8,20,3000,1000,1000)
+  Interdigitated_Capacitor.create(0,-10000,300,200,1000,7000,10,1000,2000,1000)
+
+end
+</text>
+</klayout-macro>
