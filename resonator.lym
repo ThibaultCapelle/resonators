@@ -20,8 +20,29 @@
   include Interdigitated_Capacitor
   include N_sided_spiral
   
-  N_sided_spiral.create(0,0,8,20,3000,1000,1000)
-  Interdigitated_Capacitor.create(0,-10000,300,200,1000,7000,10,1000,2000,1000)
+  #parameters of the spiral
+  s=1000
+  w=1000
+  inner=3000
+  n_sides=8
+  n_turns=20
+  x0=0
+  y0=0
+  
+  #parameters of the capacitor
+  s_c=300
+  w_c=200
+  x0_c=x0-overlap/2-
+  y0_c=-10000
+  overlap=7000
+  end_gap=1000
+  side_length=1000
+  negative_gap=1000
+  pairs=10
+  terminal=1000
+  
+  N_sided_spiral.create(x0,y0,n_sides,n_turns,inner,s,w)
+  Interdigitated_Capacitor.create(x0_c,y0_c,w_c,s_c,end_gap,overlap,pairs,terminal,side_length,negative_gap)
 
 end
 </text>
