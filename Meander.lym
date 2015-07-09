@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category/>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>ruby</interpreter>
+ <dsl-interpreter-name/>
+ <text>module Meander
+ 
+  include RBA
+  
+  def Meander.create(x0,y0,w,s,n_legs,length,first_length,last_length)
+  
+  app = RBA::Application.instance
+    mw = app.main_window
+    
+    lv = mw.current_view
+    if lv == nil
+      raise "No view selected"
+    end
+    
+    cv = lv.active_cellview
+    cv_index = cv.cell_index
+    layout = cv.layout
+    cell=cv.cell
+    
+    layer=layout.layer(9,0)
+    
+    if layer==nil
+      color=0xfa
+    else
+      lp_found = nil
+      iter = lv.begin_layers
+      while !iter.at_end?
+        lp = iter.current
+        if lp.cellview == cv_index &amp;&amp; lp.layer_index == layer
+          lp_found = lp 
+        end
+        iter.next
+      end
+      color=0xfa
+      
+    end
+    
+    linfo_positive=RBA::LayerInfo::new(30, 0)
+    linfo_negative=RBA::LayerInfo::new(31, 0)
+    new_layer_id_positive = layout.insert_layer( linfo_positive )
+    new_layer_id_negative = layout.insert_layer( linfo_negative )
+    
+    
+    ln_positive = RBA::LayerPropertiesNode::new
+    ln_negative = RBA::LayerPropertiesNode::new
+    ln_positive.dither_pattern = 11
+    ln_negative.dither_pattern = 13
+    ln_negative.name = "negative meander"
+    ln_positive.name = "positive meander"
+    c = color
+    
+    ln_positive.fill_color = c
+    ln_positive.frame_color = c
+    ln_positive.width = 1
+    ln_positive.source_layer_index = new_layer_id_positive
+    lv.insert_layer( lv.end_layers, ln_positive )
+    
+    
+    ln_negative.fill_color = c
+    ln_negative.frame_color = c
+    ln_negative.width = 1
+    ln_negative.source_layer_index = new_layer_id_negative
+    lv.insert_layer( lv.end_layers, ln_negative )
+    
+    first=RBA::Box::new(RBA::Point::new(x0,y0-w/2),RBA::Point::new(x0+first_length,y0+w/2))
+    cell.shapes(new_layer_id_positive).insert(first)
+    
+    x=x0+first_length
+    y=y0+w/2
+    
+    pairs=(n_legs-2)/2
+    
+    for i in (1..pairs) 
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x,y-s-2*w),RBA::Point::new(x+w,y)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length,y-s-2*w),RBA::Point::new(x,y-s-w)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length-w,y-2*(s+w)-w),RBA::Point::new(x-length,y-w-s)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length,y-2*(s+w)-w),RBA::Point::new(x,y-2*(s+w))))
+      y=y-2*(s+w)
+    end
+    
+    if n_legs.modulo(2)==0
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x,y-s-2*w),RBA::Point::new(x+w,y)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-last_length,y-s-2*w),RBA::Point::new(x,y-s-w)))
+    else
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x,y-s-2*w),RBA::Point::new(x+w,y)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length,y-s-2*w),RBA::Point::new(x,y-s-w)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length-w,y-2*(s+w)-w),RBA::Point::new(x-length,y-w-s)))
+      cell.shapes(new_layer_id_positive).insert(RBA::Box::new(RBA::Point::new(x-length,y-2*(s+w)-w),RBA::Point::new(x-length+last_length,y-2*(s+w))))
+    end  
+    
+  end
+end
+</text>
+</klayout-macro>

@@ -19,6 +19,7 @@
   include RBA
   include Interdigitated_Capacitor
   include N_sided_spiral
+  include Meander
   
   #parameters of the spiral
   s=1000
@@ -56,6 +57,7 @@
   xb=end_position[2]
   yb=end_position[3]
   
+  Meander.create(x0,y0,w,s,6,10000,5000,2000)
   
   #parameters of the capacitor
   s_c=300
