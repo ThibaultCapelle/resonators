@@ -50,13 +50,7 @@
         end
         iter.next
       end
-      if (lp_found != nil)
-        if lp_found.has_frame_color?
-          color=lp_found.eff_frame_color
-        end
-      else
-        color=0xfa
-      end
+      color=0xfa
     end
   
     linfo_positive=RBA::LayerInfo::new(30, 0)
@@ -138,40 +132,78 @@
     inner=inner+(s+w)/sides
   
     for i in (1..turns)
-      for n in (1..sides)
-        cell.shapes(new_layer_id_positive).insert(SimplePolygon::new([Point::new(xa,ya),Point::new(xb,yb),Point::new(xc,yc),Point::new(xd,yd)]))
-        cell.shapes(new_layer_id_negative).insert(SimplePolygon::new([Point::new(xb,yb),Point::new(xe,ye),Point::new(xf,yf),Point::new(xc,yc)]))
+      if(i&lt;turns)
+        for n in (1..sides)
+          cell.shapes(new_layer_id_positive).insert(SimplePolygon::new([Point::new(xa,ya),Point::new(xb,yb),Point::new(xc,yc),Point::new(xd,yd)]))
+          cell.shapes(new_layer_id_negative).insert(SimplePolygon::new([Point::new(xb,yb),Point::new(xe,ye),Point::new(xf,yf),Point::new(xc,yc)]))
+        
+          xa=xd
+          ya=yd
+          xb=xc
+          yb=yc
+          xe=xf
+          ye=yf
       
-        xa=xd
-        ya=yd
-        xb=xc
-        yb=yc
-        xe=xf
-        ye=yf
-    
-    
       
-        alpha=Math.atan((((inner+w/2+(s+w)/sides).to_f/(inner+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
-        length=(inner+w/2)/Math.cos(alpha)
-        xc=x0+length*Math.cos(alpha+angle)
-        yc=y0+length*Math.sin(alpha+angle)
-    
-        alpha=Math.atan((((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
-        length=(inner-w/2)/Math.cos(alpha)
-        xd=x0+length*Math.cos(alpha+angle)
-        yd=y0+length*Math.sin(alpha+angle)
+        
+          alpha=Math.atan((((inner+w/2+(s+w)/sides).to_f/(inner+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+          length=(inner+w/2)/Math.cos(alpha)
+          xc=x0+length*Math.cos(alpha+angle)
+          yc=y0+length*Math.sin(alpha+angle)
       
-        alpha=Math.atan((((inner+w/2+s+(s+w)/sides).to_f/(inner+s+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
-        length=(inner+s+w/2)/Math.cos(alpha)
-        xf=x0+length*Math.cos(alpha+angle)
-        yf=y0+length*Math.sin(alpha+angle)
-    
+          alpha=Math.atan((((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+          length=(inner-w/2)/Math.cos(alpha)
+          xd=x0+length*Math.cos(alpha+angle)
+          yd=y0+length*Math.sin(alpha+angle)
+        
+          alpha=Math.atan((((inner+w/2+s+(s+w)/sides).to_f/(inner+s+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+          length=(inner+s+w/2)/Math.cos(alpha)
+          xf=x0+length*Math.cos(alpha+angle)
+          yf=y0+length*Math.sin(alpha+angle)
       
-        angle=angle+ref_angle
-        inner=inner+(s+w)/sides
+        
+          angle=angle+ref_angle
+          inner=inner+(s+w)/sides
+        end
+      else
+        for n in (1..sides)
+          if(angle.modulo(2*Math::PI)&lt;1.5*Math::PI)
+            cell.shapes(new_layer_id_positive).insert(SimplePolygon::new([Point::new(xa,ya),Point::new(xb,yb),Point::new(xc,yc),Point::new(xd,yd)]))
+            cell.shapes(new_layer_id_negative).insert(SimplePolygon::new([Point::new(xb,yb),Point::new(xe,ye),Point::new(xf,yf),Point::new(xc,yc)]))
+          
+            xa=xd
+            ya=yd
+            xb=xc
+            yb=yc
+            xe=xf
+            ye=yf
+        
+        
+          
+            alpha=Math.atan((((inner+w/2+(s+w)/sides).to_f/(inner+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+            length=(inner+w/2)/Math.cos(alpha)
+            xc=x0+length*Math.cos(alpha+angle)
+            yc=y0+length*Math.sin(alpha+angle)
+        
+            alpha=Math.atan((((inner-w/2+(s+w)/sides).to_f/(inner-w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+            length=(inner-w/2)/Math.cos(alpha)
+            xd=x0+length*Math.cos(alpha+angle)
+            yd=y0+length*Math.sin(alpha+angle)
+          
+            alpha=Math.atan((((inner+w/2+s+(s+w)/sides).to_f/(inner+s+w/2).to_f)-Math.cos(ref_angle))/Math.sin(ref_angle))
+            length=(inner+s+w/2)/Math.cos(alpha)
+            xf=x0+length*Math.cos(alpha+angle)
+            yf=y0+length*Math.sin(alpha+angle)
+        
+          
+            angle=angle+ref_angle
+            inner=inner+(s+w)/sides
+          end
+        end
+
       end
     end
-  
+  Array::new([xa,ya,xb,yb,new_layer_id_positive,new_layer_id_negative])
   end
   
   #N_sided_spiral_m::N_sided_spiral(0,0,8,20,1000,1000,1000)

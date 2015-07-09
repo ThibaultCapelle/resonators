@@ -46,11 +46,7 @@
         end
         iter.next
       end
-      if (lp_found != nil)&amp;&amp;(lp_found.has_frame_color?)
-        color=lp_found.eff_frame_color
-      else
-        color=0xfa
-      end
+      color=0xfa
       
     end
     
@@ -144,6 +140,8 @@
     cell.shapes(new_layer_id_positive).insert(connect_box_bis)
     cell.shapes(new_layer_id_positive).insert(polygonbis)
     cell.shapes(new_layer_id_negative).insert(region)
+    
+    region_bis.bbox
   end
 end
 </text>

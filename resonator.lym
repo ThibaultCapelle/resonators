@@ -29,21 +29,91 @@
   x0=0
   y0=0
   
+  #parameters of the inbetween
+  separation=5000
+  
+  #Sin layer parameter
+  extension=1000
+  
+  app = RBA::Application.instance
+  mw = app.main_window
+    
+  lv = mw.current_view
+  if lv == nil
+    raise "No view selected"
+  end
+    
+  cv = lv.active_cellview
+  cv_index = cv.cell_index
+  layout = cv.layout
+  cell=cv.cell
+  
+  end_position= N_sided_spiral.create(x0,y0,n_sides,n_turns,inner,s,w)
+  layer=end_position[4]
+  
+  xa=end_position[0]
+  ya=end_position[1]
+  xb=end_position[2]
+  yb=end_position[3]
+  
+  
   #parameters of the capacitor
   s_c=300
   w_c=200
-  x0_c=x0-overlap/2-
-  y0_c=-10000
   overlap=7000
   end_gap=1000
   side_length=1000
   negative_gap=1000
   pairs=10
   terminal=1000
+  x0_c=x0-overlap/2-end_gap-terminal+xa/2
+  y0_c=y0-2*pairs*(s_c+w_c)+w_c-inner-n_turns*(s+w)-separation
   
-  N_sided_spiral.create(x0,y0,n_sides,n_turns,inner,s,w)
-  Interdigitated_Capacitor.create(x0_c,y0_c,w_c,s_c,end_gap,overlap,pairs,terminal,side_length,negative_gap)
-
+  
+  bounding_box=Interdigitated_Capacitor.create(x0_c,y0_c,w_c,s_c,end_gap,overlap,pairs,terminal,side_length,negative_gap)
+  
+  xc=xb
+  yc=yb-w
+  xd=xb+w
+  yd=yc
+  
+  linfo_first_line=RBA::LayerInfo::new(25,0)
+  linfo_SiN=RBA::LayerInfo::new(26,0)
+  first_line_id=layout.insert_layer(linfo_first_line)
+  sin_id=layout.insert_layer(linfo_SiN)
+  
+  first_line_prop = RBA::LayerPropertiesNode::new
+  sin_prop = RBA::LayerPropertiesNode::new
+  first_line_prop.dither_pattern = 11
+  sin_prop.dither_pattern = 13
+  first_line_prop.name = "first line"
+  sin_prop.name = "SiN protection"
+  
+  c = 25
+  first_line_prop.fill_color = c
+  first_line_prop.frame_color = c
+  first_line_prop.width = 1
+  first_line_prop.source_layer_index = first_line_id
+  lv.insert_layer( lv.end_layers, first_line_prop )
+  
+  
+  sin_prop.fill_color = c+1
+  sin_prop.frame_color = c+1
+  sin_prop.width = 1
+  sin_prop.source_layer_index = sin_id
+  lv.insert_layer( lv.end_layers, sin_prop )
+  
+  cell.shapes(first_line_id).insert(Box::new(Point::new(x0-w,y0-w),Point::new(x0+w,y0+w)))
+  cell.shapes(first_line_id).insert(Box::new(Point::new(x0-w/2,y0_c+(pairs-0.5)*(s_c+w_c)),Point::new(x0+w/2,y0-w/2)))
+  cell.shapes(sin_id).insert(Box::new(Point::new(x0-w/2-extension,y0_c+(pairs-0.5)*(s_c+w_c)+separation),Point::new(x0+w/2+extension,y0-w/2-inner/2)))
+  
+  cell.shapes(layer).insert(SimplePolygon::new([Point::new(xa,ya),Point::new(xb,yb),Point::new(xc,yc),Point::new(xd,yd)]))
+  cell.shapes(layer).insert(SimplePolygon::new([Point::new(xd,yd),Point::new(xc,yc),Point::new(xc,y0_c+(pairs-0.5)*(s_c+w_c)),Point::new(xd,y0_c+(pairs-0.5)*(s_c+w_c))]))
+  
+  connect_line_capa=Box::new(Point::new(xd,y0_c+(pairs-0.5)*(s_c+w_c)),Point::new(x0_c-side_length,y0_c+(pairs-0.5)*(s_c+w_c)+w_c))
+  connect_line_capa_bis=Box::new(Point::new(bounding_box.right,y0_c+(pairs-0.5)*(s_c+w_c)),Point::new(x0-w/2,y0_c+(pairs-0.5)*(s_c+w_c)+w_c))
+  cell.shapes(layer).insert(connect_line_capa)
+  cell.shapes(layer).insert(connect_line_capa_bis)
 end
 </text>
 </klayout-macro>
